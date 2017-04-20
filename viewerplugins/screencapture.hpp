@@ -17,7 +17,6 @@ struct ScreenCapturePlugin {
 	}
 
 	QString path = "./";
-	SCPaintStep scps;
 	int cap = 0;
 	int skippedFrame = 0;
 	template <typename R> void onLoad(R *renderer) {
@@ -25,9 +24,9 @@ struct ScreenCapturePlugin {
 		MenuElement<R> capture = {"Enable screen capture", true};
 		capture.onToggled = [&](R *r, MenuElement<R> *me) {
 			if (me->isChecked())
-				r2->addPaintStepsMethods(1000000000, [&](R *r2) {
+				r->addPaintStepsMethods(1000000000, [&](R *r2) {
 					if (r2->getCurrentFBO() && r2->getFrame() % (1 + skippedFrame) == 0) {
-						saveImg(r2->getWindow()->width(), r->getWindow()->height(), path);
+						saveImg(r2->getWindow()->width(), r2->getWindow()->height(), path);
 					}
 				});
 			else

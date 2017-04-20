@@ -8,7 +8,6 @@
 struct ScreenCapturePlugin {
 	struct SCPaintStep {
 		int cap = 0;
-		int NBFRAMEPERSCREEN = 10;
 
 		void saveImg(int W, int H, const QString &path) {
 			std::vector<GLubyte> pixels;
@@ -36,13 +35,18 @@ struct ScreenCapturePlugin {
 
 	QString path = "./";
 	SCPaintStep scps;
+	int skippedFrame = 0;
 	template <typename R> void onLoad(R *renderer) {
 		MenuElement<R> *nativeDisplayMenu = renderer->getDisplayMenu();
 		MenuElement<R> capture = {"Enable screen capture", true};
 		scps.load();
 		capture.onToggled = [&](R *r, MenuElement<R> *me) {
 			if (me->isChecked())
-				r->addPaintStepsMethods(1000000000, [&](R *r2) { scps.call(r2, path); });
+				r->addPaintStepsMethods(1000000000, [&](R *r2) {
+					if (r->getFrame() % (1 + skippedFrame) == 0) {
+						scps.call(r2, path);
+					}
+				});
 			else
 				r->erasePaintStepsMethods(1000000000);
 		};

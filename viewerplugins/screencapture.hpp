@@ -1,8 +1,9 @@
 #ifndef SCREENCAPTURE_MECACELLVIEWERPLUGIN_HPP
 #define SCREENCAPTURE_MECACELLVIEWERPLUGIN_HPP
+#include <QImage>
 /**
- * @brief ScreenCapturePlugin creates a checkable option in the menu that enables
- * saves in png format.
+ * @brief ScreenCapturePlugin creates a checkable option in the menu that enables screen
+ * capture
  */
 
 struct ScreenCapturePlugin {
@@ -18,17 +19,10 @@ struct ScreenCapturePlugin {
 			img.mirrored().save(path + QString("capture_") + QString::number(cap++) + ".jpg");
 		}
 
-		// void saveImg(const QString& path) { // Qt version
-		// r->getCurrentFBO()->toImage().save(path + QString("capture_") +
-		// QString::number(cap++) + ".png");
-		//}
-
 		void call(R *r, const QString &path) {
 			if (r->getCurrentFBO()) {
-				if (r->getFrame() % NBFRAMEPERSCREEN == 0) {
-					auto s = r->getWindow()->renderTargetSize();
-					saveImg(r->getWindow()->width() * 2.0, r->getWindow()->height() * 2.0, path);
-				}
+				auto s = r->getWindow()->renderTargetSize();
+				saveImg(r->getWindow()->width() * 2.0, r->getWindow()->height() * 2.0, path);
 			}
 		}
 	};

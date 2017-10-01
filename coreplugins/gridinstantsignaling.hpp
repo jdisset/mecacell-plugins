@@ -1,7 +1,7 @@
 #ifndef MECACELL_GRID_INSTANT_SIGNALING_PLUGIN_HPP
 #define MECACELL_GRID_INSTANT_SIGNALING_PLUGIN_HPP
 #include <array>
-#include <mecacell/utility/grid.hpp>
+#include <mecacell/utilities/grid.hpp>
 #include <utility>
 #include <vector>
 
@@ -22,8 +22,8 @@
  */
 template <typename C, size_t NB_MOL> class GridInstantSignalingPlugin {
  private:
-	using V = std::result_of_t<decltype (&C::getPosition)()>;  // Vec3D type
-	MecaCell::Grid<Cell*> cellgrid;
+	using V = decltype(((C*)nullptr)->getPosition());  // Vec3D type
+	MecaCell::Grid<C*> cellgrid;
 
  public:
 	std::array<double, NB_MOL> moleculeRange{};  // ranges of each molecule
@@ -39,7 +39,7 @@ template <typename C, size_t NB_MOL> class GridInstantSignalingPlugin {
 
 	template <typename W> void beginUpdate(W* w) {
 		cellgrid.clear();
-		for (auto& c : w.cells)
+		for (auto& c : w->cells)
 			cellgrid.insertOnlyCenter(c);  // we only need the cells centers coordinates
 
 		auto& gridcontent = cellgrid.getContent();
@@ -55,14 +55,14 @@ template <typename C, size_t NB_MOL> class GridInstantSignalingPlugin {
 					molCenters[i].first += c->getPosition() * prod;
 					molCenters[i].second += prod;
 				}
-				// centroid coords normalization:
-				for (auto& c : gridcell.second)
-					for (auto i = 0u; i < NB_MOL; ++i)
-						if (molCenters[i].second > 0) molCenters[i].first /= molCenters[i].second;
 			}
-			molecules.push_back(morphoCenters);
+			// centroid coords normalization:
+			for (auto& c : gridcell.second)
+				for (auto i = 0u; i < NB_MOL; ++i)
+					if (molCenters[i].second > 0) molCenters[i].first /= molCenters[i].second;
+			molecules.push_back(molCenters);
 		}
-		for (auto& c : w.cells) {
+		for (auto& c : w->cells) {
 			const auto P = c->getPosition();
 			for (auto i = 0u; i < NB_MOL; ++i) {
 				double sensed = 0.0;
@@ -75,3 +75,4 @@ template <typename C, size_t NB_MOL> class GridInstantSignalingPlugin {
 		}
 	}
 };
+#endif
